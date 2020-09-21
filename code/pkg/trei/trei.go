@@ -24,3 +24,9 @@ func (trie *MerklePatriciaTrie) Insert(value []byte) {
 func insert(root *Node, value []byte) {
 
 }
+
+func (trie *MerklePatriciaTrie) NewTrie(values [][]byte) {
+	for i := range values {
+		trie.Insert(values[i])
+	}
+}
