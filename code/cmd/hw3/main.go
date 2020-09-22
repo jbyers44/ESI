@@ -28,6 +28,10 @@ func main() {
 	content, err := ioutil.ReadFile(input)
 	check(err)
 
+	println("Enter the name of the file in which to save the printed tree (the program will automatically append the appropriate file extension)")
+	scanner.Scan()
+	input = scanner.Text()
+
 	// Convert []byte to string and print to screen
 	byteStrings := bytes.Split(content, []byte("\n"))
 
@@ -43,7 +47,7 @@ func main() {
 	merkleTree := trie.NewMerklePatriciaTrie()
 	merkleTree.NewTrie(byteStrings)
 
-	file, err := os.Create("output.txt")
+	file, err := os.Create(input + ".out.txt")
 	check(err)
 
 	defer file.Close()
