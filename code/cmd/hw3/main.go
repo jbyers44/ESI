@@ -4,7 +4,6 @@ import (
 	"ESI/pkg/trie"
 	"bufio"
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -38,17 +37,12 @@ func main() {
 		return bytes.Compare(byteStrings[i], byteStrings[j]) < 0
 	})
 
-	// Simply to test reading works
-	for i, s := range byteStrings {
-		fmt.Println(i, string(s))
-	}
-
-	merkleTree := trie.NewMerklePatriciaTrie()
-	merkleTree.InsertBatch(byteStrings)
+	mpt := trie.NewMerklePatriciaTrie()
+	mpt.InsertBatch(byteStrings)
 
 	file, err := os.Create(input + ".out.txt")
 	check(err)
 
 	defer file.Close()
-	trie.PrintTrie(merkleTree.GetRoot(), file)
+	file.Write([]byte(mpt.String()))
 }

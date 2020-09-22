@@ -20,7 +20,6 @@ func (trie *MerklePatriciaTrie) Insert(value []byte) {
 		leaf := NewLeaf(value)
 		dummy := NewLeaf([]byte(""))
 		trie.root = &Node{[32]byte{}, value, leaf, []byte(""), dummy}
-		println("started new tree with leftLabel: " + string(value))
 	} else {
 		insert(trie.root, value, 0)
 	}
@@ -52,6 +51,9 @@ func insert(root *Node, value []byte, prefix int) {
 	if gcp > 0 {
 		switch v := root.left.(type) {
 		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on right
+			if bytes.Compare(v.value, value) == 0 {
+				return
+			}
 			root.left = insertNode(v, root.leftLabel, value, gcp, prefix)
 			root.leftLabel = root.leftLabel[:gcp]
 			return
@@ -74,6 +76,9 @@ func insert(root *Node, value []byte, prefix int) {
 
 		switch v := root.right.(type) {
 		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on right
+			if bytes.Compare(v.value, value) == 0 {
+				return
+			}
 			root.right = insertNode(v, root.rightLabel, value, gcp, prefix)
 			root.rightLabel = root.rightLabel[:gcp]
 			return
@@ -123,4 +128,8 @@ func (trie *MerklePatriciaTrie) InsertBatch(values [][]byte) {
 func (trie *MerklePatriciaTrie) GetRoot() (root *Node) {
 	return trie.root
 
+}
+
+func (trie *MerklePatriciaTrie) String() string {
+	return trie.root.String()
 }
