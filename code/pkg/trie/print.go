@@ -1,20 +1,20 @@
-package main
+package trie
 
-import(
-	"os"
+import (
 	"fmt"
+	"os"
 	"strconv"
 )
 
 //check error
 func check(e error) {
-    if e != nil {
-        panic(e)
-    }
+	if e != nil {
+		panic(e)
+	}
 }
 
-//write data from all nodes to text file
-func writeTree(node *Node, file *os.File) {
+// WriteTree data from all nodes to text file
+func WriteTree(node *Node, file *os.File) {
 	data := [][][]byte{}
 	dataPtr := &data
 
@@ -22,7 +22,7 @@ func writeTree(node *Node, file *os.File) {
 	fmt.Println(data)
 
 	for i := 0; i < len(data); i++ {
-		if len(data[i]) > 3 {                               //write internal nodes
+		if len(data[i]) > 3 { //write internal nodes
 			file.Write([]byte("printID: "))
 			file.Write(data[i][0])
 			file.Write([]byte("\n"))
@@ -41,7 +41,7 @@ func writeTree(node *Node, file *os.File) {
 			file.Write([]byte("right child printID: "))
 			file.Write(data[i][5])
 			file.Write([]byte("\n\n\n"))
-		} else {                                            //write leaf nodes
+		} else { //write leaf nodes
 			file.Write([]byte("printID: "))
 			file.Write(data[i][0])
 			file.Write([]byte("\n"))
@@ -68,29 +68,29 @@ func getDataFromAllNodes(node *Node, data *[][][]byte, printID int) {
 	str = strconv.Itoa(2 * printID)
 	nodeData = append(nodeData, []byte(str))
 	nodeData = append(nodeData, []byte(node.rightLabel))
-	str = strconv.Itoa(2 * printID + 1)
+	str = strconv.Itoa(2*printID + 1)
 	nodeData = append(nodeData, []byte(str))
 
 	*data = append(*data, nodeData)
 
 	if lLeaf {
 		lLeaf := node.left.(Leaf)
-		getLeafData(&lLeaf, data, 2 * printID)
+		getLeafData(&lLeaf, data, 2*printID)
 	} else {
 		lNode := node.left.(Node)
-		getDataFromAllNodes(&lNode, data, 2 * printID)
+		getDataFromAllNodes(&lNode, data, 2*printID)
 	}
 
 	if rLeaf {
 		rLeaf := node.right.(Leaf)
-		getLeafData(&rLeaf, data, 2 * printID + 1)
+		getLeafData(&rLeaf, data, 2*printID+1)
 	} else {
 		rNode := node.right.(Node)
-		getDataFromAllNodes(&rNode, data, 2 * printID + 1)
+		getDataFromAllNodes(&rNode, data, 2*printID+1)
 	}
 }
 
-//store fields from leaf nodes in 
+//store fields from leaf nodes in
 func getLeafData(leaf *Leaf, data *[][][]byte, printID int) {
 	leafData := [][]byte{}
 	str := strconv.Itoa(printID)

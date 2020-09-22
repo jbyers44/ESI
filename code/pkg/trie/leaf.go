@@ -1,4 +1,4 @@
-package trei
+package trie
 
 import (
 	"crypto/sha256"

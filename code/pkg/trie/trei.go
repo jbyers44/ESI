@@ -1,4 +1,4 @@
-package trei
+package trie
 
 import (
 	"bytes"
@@ -73,10 +73,20 @@ func insert(root *Node, value []byte, prefix []byte) {
 			insert(&nextNode, value, nextPrefix)
 		}
 	}
+
+	print("llabel: " + string(root.leftLabel))
+	print("rlabel: " + string(root.rightLabel))
+
 }
 
+// NewTrie makes a new trie
 func (trie *MerklePatriciaTrie) NewTrie(values [][]byte) {
 	for i := range values {
 		trie.Insert(values[i])
 	}
+}
+
+// GetRoot gets the root
+func (trie *MerklePatriciaTrie) GetRoot() (root *Node) {
+	return trie.root
 }

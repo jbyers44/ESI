@@ -1,20 +1,25 @@
 package main
 
 import (
-	"ESI/pkg/trei"
+	"ESI/pkg/trie"
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"sort"
 )
 
-func main() {
-
-	content, err := ioutil.ReadFile("code/cmd/hw3/testInput.txt")
+func check(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+
+	content, err := ioutil.ReadFile("./testInput.txt")
+	check(err)
 
 	// Convert []byte to string and print to screen
 	byteStrings := bytes.Split(content, []byte("\n"))
@@ -28,7 +33,12 @@ func main() {
 		fmt.Println(i, string(s))
 	}
 
-	merkleTree := new(trei.MerklePatriciaTrie)
+	merkleTree := trie.NewMerklePatriciaTrie()
 	merkleTree.NewTrie(byteStrings)
 
+	file, err := os.Create("output.txt")
+	check(err)
+
+	defer file.Close()
+	trie.WriteTree(merkleTree.GetRoot(), file)
 }
