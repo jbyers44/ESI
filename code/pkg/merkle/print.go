@@ -6,23 +6,17 @@ import(
 	"strconv"
 )
 
-//check error
-func check(e error) {
-    if e != nil {
-        panic(e)
-    }
-}
-
 //write data from all nodes to text file
-func writeTree(node *Node, file *os.File) {
+func printTree(node *Node, file *os.File) {
 	data := [][][]byte{}
 	dataPtr := &data
 
 	getDataFromAllNodes(node, dataPtr, 1)
-	fmt.Println(data)
+
+	sortData(dataPtr)
 
 	for i := 0; i < len(data); i++ {
-		if len(data[i]) > 3 {                               //write internal nodes
+		if len(data[i]) > 3 {
 			file.Write([]byte("printID: "))
 			file.Write(data[i][0])
 			file.Write([]byte("\n"))
@@ -41,7 +35,7 @@ func writeTree(node *Node, file *os.File) {
 			file.Write([]byte("right child printID: "))
 			file.Write(data[i][5])
 			file.Write([]byte("\n\n\n"))
-		} else {                                            //write leaf nodes
+		} else {
 			file.Write([]byte("printID: "))
 			file.Write(data[i][0])
 			file.Write([]byte("\n"))
@@ -55,41 +49,6 @@ func writeTree(node *Node, file *os.File) {
 	}
 }
 
-//recursively store all fields from all nodes in data array
-func getDataFromAllNodes(node *Node, data *[][][]byte, printID int) {
-	_, lLeaf := node.left.(Leaf)
-	_, rLeaf := node.right.(Leaf)
-
-	nodeData := [][]byte{}
-	str := strconv.Itoa(printID)
-	nodeData = append(nodeData, []byte(str))
-	nodeData = append(nodeData, node.hash[:])
-	nodeData = append(nodeData, []byte(node.leftLabel))
-	str = strconv.Itoa(2 * printID)
-	nodeData = append(nodeData, []byte(str))
-	nodeData = append(nodeData, []byte(node.rightLabel))
-	str = strconv.Itoa(2 * printID + 1)
-	nodeData = append(nodeData, []byte(str))
-
-	*data = append(*data, nodeData)
-
-	if lLeaf {
-		lLeaf := node.left.(Leaf)
-		getLeafData(&lLeaf, data, 2 * printID)
-	} else {
-		lNode := node.left.(Node)
-		getDataFromAllNodes(&lNode, data, 2 * printID)
-	}
-
-	if rLeaf {
-		rLeaf := node.right.(Leaf)
-		getLeafData(&rLeaf, data, 2 * printID + 1)
-	} else {
-		rNode := node.right.(Node)
-		getDataFromAllNodes(&rNode, data, 2 * printID + 1)
-	}
-}
-
 //store fields from leaf nodes in 
 func getLeafData(leaf *Leaf, data *[][][]byte, printID int) {
 	leafData := [][]byte{}
@@ -99,4 +58,26 @@ func getLeafData(leaf *Leaf, data *[][][]byte, printID int) {
 	leafData = append(leafData, leaf.hash[:])
 
 	*data = append(*data, leafData)
+}
+
+//sorts array of node data
+func sortData(data *[][][]byte) {
+	fmt.Println(*data)
+	minIndex := 0
+	min := 0
+	curr := 0
+
+	for i := 0; i < len(*data) - 1; i++ {
+		minIndex = i
+		for j := i + 1; j < len(*data); j++ {
+			curr, _ = strconv.Atoi(string((*data)[j][0]))
+			min, _ = strconv.Atoi(string((*data)[minIndex][0]))
+
+			if curr < min {
+				minIndex = j
+			}
+		}
+
+		(*data)[i], (*data)[minIndex] = (*data)[minIndex], (*data)[i]
+	}
 }
