@@ -1,3 +1,3 @@
-module ESI/code
+module ESI
 
 go 1.15
