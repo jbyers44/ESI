@@ -2,6 +2,7 @@ package main
 
 import (
 	"ESI/pkg/trie"
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
@@ -18,7 +19,13 @@ func check(err error) {
 
 func main() {
 
-	content, err := ioutil.ReadFile("./testInput.txt")
+	scanner := bufio.NewScanner(os.Stdin)
+	println("Please enter your input filename (which should be placed in the same directory as hw3.exe)")
+
+	scanner.Scan()
+	input := scanner.Text()
+
+	content, err := ioutil.ReadFile(input)
 	check(err)
 
 	// Convert []byte to string and print to screen
