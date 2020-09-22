@@ -1,2 +1,0 @@
-cd code
-./hw3
