@@ -8,3 +8,11 @@ type Node struct {
 	rightLabel []byte
 	right      interface{}
 }
+
+func (node *Node) SetLeft(left interface{}) {
+	node.left = left
+}
+
+func (node *Node) SetRight(right interface{}) {
+	node.right = right
+}
