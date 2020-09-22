@@ -8,7 +8,7 @@ import (
 
 // Node represents a non-terminal node that points to either other nodes or a leaf
 type Node struct {
-	hash       [32]byte
+	hash       []byte
 	leftLabel  []byte
 	left       interface{}
 	rightLabel []byte
@@ -17,7 +17,7 @@ type Node struct {
 
 func (node *Node) String() string {
 	m := make(map[int]string)
-	stringify(node, m, 1)
+	stringify(node, m)
 
 	nodeIds := make([]int, len(m))
 	i := 0
@@ -34,28 +34,28 @@ func (node *Node) String() string {
 	return b.String()
 }
 
-func stringify(node interface{}, nodeMap map[int]string, printID int) {
+func stringify(node interface{}, nodeMap map[int]string) {
 	switch n := node.(type) {
 	case *Leaf:
 		var b bytes.Buffer
-		fmt.Fprintf(&b, "%d\n", printID)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+1)
 		fmt.Fprintf(&b, "%s\n", n.value)
 		fmt.Fprintf(&b, "%x\n", n.hash)
-		nodeMap[printID] = b.String()
+		nodeMap[len(nodeMap)+1] = b.String()
 		return
 
 	case *Node:
 		var b bytes.Buffer
-		fmt.Fprintf(&b, "%d\n", printID)
-		fmt.Fprintf(&b, "%d\n", 2*printID)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+1)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+2)
 		fmt.Fprintf(&b, "%s\n", n.leftLabel)
 		fmt.Fprintf(&b, "%x\n", n.hash)
-		fmt.Fprintf(&b, "%d\n", 2*printID+1)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+3)
 		fmt.Fprintf(&b, "%s\n", n.rightLabel)
-		nodeMap[printID] = b.String()
+		nodeMap[len(nodeMap)+1] = b.String()
 
-		stringify(n.left, nodeMap, 2*printID)
-		stringify(n.right, nodeMap, 2*printID+1)
+		stringify(n.left, nodeMap)
+		stringify(n.right, nodeMap)
 		return
 	}
 }

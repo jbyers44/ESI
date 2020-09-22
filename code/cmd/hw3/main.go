@@ -39,6 +39,7 @@ func main() {
 
 	mpt := trie.NewMerklePatriciaTrie()
 	mpt.InsertBatch(byteStrings)
+	mpt.GenerateHashes()
 
 	file, err := os.Create(input + ".out.txt")
 	check(err)

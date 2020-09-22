@@ -2,6 +2,7 @@ package trie
 
 import (
 	"bytes"
+	"crypto/sha256"
 )
 
 // MerklePatriciaTrie is effectively a wrapper for a pointer to the root node
@@ -19,7 +20,7 @@ func (trie *MerklePatriciaTrie) Insert(value []byte) {
 	if trie.root == nil {
 		leaf := NewLeaf(value)
 		dummy := NewLeaf([]byte(""))
-		trie.root = &Node{[32]byte{}, value, leaf, []byte(""), dummy}
+		trie.root = &Node{[]byte{}, value, leaf, []byte(""), dummy}
 	} else {
 		insert(trie.root, value, 0)
 	}
@@ -37,7 +38,7 @@ func insertNode(node interface{}, label []byte, value []byte, gcp int, prefix in
 	labelRemainder := label[gcp:]
 	valueRemainder := value[prefix+gcp:]
 	newLeaf := NewLeaf(value)
-	return &Node{[32]byte{}, labelRemainder, node, valueRemainder, newLeaf}
+	return &Node{[]byte{}, labelRemainder, node, valueRemainder, newLeaf}
 }
 
 // Private recursive func that does actual insertion logic
@@ -115,6 +116,28 @@ func insert(root *Node, value []byte, prefix int) {
 		root.rightLabel = []byte("")
 		return
 	}
+}
+
+// GenerateHashes generates the merkle hashes for the tree
+func (trie *MerklePatriciaTrie) GenerateHashes() {
+	trie.root.hash = hash(trie.root)
+}
+
+// ComputeHash computes the merkle tree hash for the tree
+func hash(node interface{}) []byte {
+	switch n := node.(type) {
+	case *Leaf:
+		return n.hash
+
+	case *Node:
+		h := sha256.New()
+		b := append(hash(n.left), hash(n.right)...)
+		h.Write(b)
+		n.hash = h.Sum(nil)
+		return n.hash
+	}
+	println("Hash computation error.\n")
+	return []byte{}
 }
 
 // InsertBatch makes a new trie
