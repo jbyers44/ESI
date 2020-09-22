@@ -18,7 +18,6 @@ func check(err error) {
 }
 
 func main() {
-
 	scanner := bufio.NewScanner(os.Stdin)
 	println("Please enter your input filename (which should be placed in the same directory as hw3.exe)")
 
@@ -45,7 +44,7 @@ func main() {
 	}
 
 	merkleTree := trie.NewMerklePatriciaTrie()
-	merkleTree.NewTrie(byteStrings)
+	merkleTree.InsertBatch(byteStrings)
 
 	file, err := os.Create(input + ".out.txt")
 	check(err)
