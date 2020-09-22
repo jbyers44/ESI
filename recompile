@@ -1,2 +1,0 @@
-cd code/cmd/hw3
-go build -o hw3.exe

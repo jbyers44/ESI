@@ -6,8 +6,8 @@ import (
 	"strconv"
 )
 
-//write data from all nodes to text file
-func printTree(node *Node, file *os.File) {
+//PrintTrie writes data from all nodes to text file
+func PrintTrie(node *Node, file *os.File) {
 	data := [][][]byte{}
 	dataPtr := &data
 

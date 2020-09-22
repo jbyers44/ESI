@@ -40,5 +40,5 @@ func main() {
 	check(err)
 
 	defer file.Close()
-	trie.WriteTree(merkleTree.GetRoot(), file)
+	trie.PrintTrie(merkleTree.GetRoot(), file)
 }
