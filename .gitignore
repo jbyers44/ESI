@@ -2,3 +2,4 @@ recompile
 run
 *.exe
 code/cmd/hw3/output.txt
+code/cmd/hw3/test.txt
