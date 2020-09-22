@@ -1,2 +1,2 @@
-cd code/cmd/hw3
-go run main.go
+cd code/cmd/hw3/
+./hw3
