@@ -2,4 +2,4 @@ ROOT_DIR=$(pwd)
 
 touch $ROOT_DIR/allcode.go
 
-find . -name \*.go -exec cat {} > $ROOT_DIR/allcode.go \;
+find code -name \*.go -exec cat {} > $ROOT_DIR/allcode.go \;
