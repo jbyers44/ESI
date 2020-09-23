@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
+	"strings"
 )
 
 func check(err error) {
@@ -17,18 +19,7 @@ func check(err error) {
 }
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	println("Please enter your input filename (which should be placed in the same directory as hw3.exe)")
-
-	scanner.Scan()
-	input := scanner.Text()
-
-	content, err := ioutil.ReadFile(input)
-	check(err)
-
-	println("Enter the name of the file in which to save the printed tree (the program will automatically append the appropriate file extension)")
-	scanner.Scan()
-	input = scanner.Text()
+	content, filename := getInput()
 
 	// Convert []byte to string and print to screen
 	byteStrings := bytes.Split(content, []byte("\n"))
@@ -41,9 +32,29 @@ func main() {
 	mpt.InsertBatch(byteStrings)
 	mpt.GenerateHashes()
 
-	file, err := os.Create(input + ".out.txt")
+	trimmed := strings.TrimSuffix(filename, filepath.Ext(filename))
+	file, err := os.Create(trimmed + ".out.txt")
 	check(err)
 
 	defer file.Close()
 	file.Write([]byte(mpt.String()))
+}
+
+func getInput() ([]byte, string) {
+	scanner := bufio.NewScanner(os.Stdin)
+	var input string
+
+	println("Please enter your input filename (which should be placed in the same directory as hw3.exe)")
+
+	for {
+		scanner.Scan()
+		input = scanner.Text()
+
+		content, err := ioutil.ReadFile(input)
+		if err != nil {
+			println("Invalid filename, please input a valid file.")
+		} else {
+			return content, input
+		}
+	}
 }
