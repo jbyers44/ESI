@@ -4,3 +4,4 @@ allcode
 allcode.go
 *.exe
 code/cmd/hw3/*txt
+*.txt
