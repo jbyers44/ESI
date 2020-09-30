@@ -3,9 +3,11 @@ package main
 import (
 	"ESI/pkg/helpers"
 	"ESI/pkg/trie"
+	"bytes"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -18,8 +20,15 @@ func check(err error) {
 func main() {
 	content, filename := helpers.GetFile()
 
+	// Convert []byte to string and print to screen
+	byteStrings := bytes.Split(content, []byte("\n"))
+
+	sort.Slice(byteStrings, func(i, j int) bool {
+		return bytes.Compare(byteStrings[i], byteStrings[j]) < 0
+	})
+
 	mpt := trie.NewMerklePatriciaTrie()
-	mpt.InsertBatch(helpers.SplitBytes(content))
+	mpt.InsertBatch(byteStrings)
 	mpt.GenerateHashes()
 
 	trimmed := strings.TrimSuffix(filename, filepath.Ext(filename))

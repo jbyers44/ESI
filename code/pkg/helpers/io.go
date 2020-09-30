@@ -2,8 +2,10 @@ package helpers
 
 import (
 	"bufio"
+	"bytes"
 	"io/ioutil"
 	"os"
+	"sort"
 )
 
 // GetFile prompts the user for a valid filename until they enter one correctly, returns the content of the file along with the input that was successful (the filename)
@@ -24,4 +26,15 @@ func GetFile() ([]byte, string) {
 			return content, input
 		}
 	}
+}
+
+// SplitBytes splits a byteslice on newline characters and sorts them alphabetically
+func SplitBytes(content []byte) [][]byte {
+	byteStrings := bytes.Split(content, []byte("\n"))
+
+	sort.Slice(byteStrings, func(i, j int) bool {
+		return bytes.Compare(byteStrings[i], byteStrings[j]) < 0
+	})
+
+	return byteStrings
 }
