@@ -59,3 +59,9 @@ func stringify(node interface{}, nodeMap map[int]string) {
 		return
 	}
 }
+
+// GetHash gets the root
+func (node *Node) GetHash() []byte {
+	return node.hash
+
+}
