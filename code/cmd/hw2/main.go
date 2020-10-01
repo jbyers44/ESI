@@ -3,9 +3,11 @@ package main
 import (
 	"ESI/pkg/chain"
 	"ESI/pkg/helpers"
+	"bufio"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -19,9 +21,14 @@ func main() {
 
 	chain := chain.NewChain()
 
-	var filesData [][]byte
+	scanner := bufio.NewScanner(os.Stdin)
 
-	numFiles := 2
+	println("Please enter how many files you want to input.")
+
+	scanner.Scan()
+	numFiles, _ := strconv.Atoi(scanner.Text())
+
+	var filesData [][]byte
 	var filename string
 	for i := 0; i < numFiles; i++ {
 		content, name := helpers.GetFile()
