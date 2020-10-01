@@ -1,7 +1,5 @@
-recompile
-run
-allcode
 allcode.go
+*.sh
 *.exe
 code/cmd/hw3/*txt
 *.txt

@@ -17,7 +17,7 @@ type Node struct {
 
 func (node *Node) String() string {
 	m := make(map[int]string)
-	stringify(node, m)
+	nodeStrings(node, m)
 
 	nodeIds := make([]int, len(m))
 	i := 0
@@ -28,13 +28,16 @@ func (node *Node) String() string {
 	sort.Ints(nodeIds)
 
 	var b bytes.Buffer
-	for _, id := range nodeIds {
-		fmt.Fprintf(&b, "%s\n\n", m[id])
+	for i, id := range nodeIds {
+		fmt.Fprintf(&b, "%s", m[id])
+		if i < len(nodeIds)-1 {
+			fmt.Fprintf(&b, "\n\n")
+		}
 	}
 	return b.String()
 }
 
-func stringify(node interface{}, nodeMap map[int]string) {
+func nodeStrings(node interface{}, nodeMap map[int]string) {
 	switch n := node.(type) {
 	case *Leaf:
 		var b bytes.Buffer
@@ -54,8 +57,14 @@ func stringify(node interface{}, nodeMap map[int]string) {
 		fmt.Fprintf(&b, "[right-child]   %d\n", len(nodeMap)+3)
 		nodeMap[len(nodeMap)+1] = b.String()
 
-		stringify(n.left, nodeMap)
-		stringify(n.right, nodeMap)
+		nodeStrings(n.left, nodeMap)
+		nodeStrings(n.right, nodeMap)
 		return
 	}
+}
+
+// GetHash gets the root
+func (node *Node) GetHash() []byte {
+	return node.hash
+
 }
