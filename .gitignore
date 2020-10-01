@@ -3,3 +3,6 @@ allcode.go
 *.exe
 code/cmd/hw3/*txt
 *.txt
+/allcode
+/run
+/recompile
