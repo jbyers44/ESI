@@ -13,7 +13,7 @@ func GetFile() ([]byte, string) {
 	scanner := bufio.NewScanner(os.Stdin)
 	var input string
 
-	println("Please enter your input filepath.")
+	println("Enter an input filepath:")
 
 	for {
 		scanner.Scan()

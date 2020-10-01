@@ -28,8 +28,11 @@ func (node *Node) String() string {
 	sort.Ints(nodeIds)
 
 	var b bytes.Buffer
-	for _, id := range nodeIds {
-		fmt.Fprintf(&b, "%s\n\n", m[id])
+	for i, id := range nodeIds {
+		fmt.Fprintf(&b, "%s", m[id])
+		if i < len(nodeIds)-1 {
+			fmt.Fprintf(&b, "\n\n")
+		}
 	}
 	return b.String()
 }

@@ -26,9 +26,7 @@ func GetNonce(target uint32, hash []byte) []byte {
 		intHash := binary.BigEndian.Uint32(value)
 
 		if intHash > target {
-			println(i)
 			return nonce
 		}
-		println(intHash)
 	}
 }
