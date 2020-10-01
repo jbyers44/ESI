@@ -1,13 +1,11 @@
 package main
 
 import (
+	"ESI/pkg/chain"
 	"ESI/pkg/helpers"
-	"ESI/pkg/trie"
-	"bytes"
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 )
 
@@ -18,23 +16,28 @@ func check(err error) {
 }
 
 func main() {
-	content, filename := helpers.GetFile()
 
-	// Convert []byte to string and print to screen
-	byteStrings := bytes.Split(content, []byte("\n"))
+	chain := chain.NewChain()
 
-	sort.Slice(byteStrings, func(i, j int) bool {
-		return bytes.Compare(byteStrings[i], byteStrings[j]) < 0
-	})
+	var filesData [][]byte
 
-	mpt := trie.NewMerklePatriciaTrie()
-	mpt.InsertBatch(byteStrings)
-	mpt.GenerateHashes()
+	numFiles := 2
+	var filename string
+	for i := 0; i < numFiles; i++ {
+		content, name := helpers.GetFile()
+		filename = name
+		filesData = append(filesData, content)
+		chain.InsertBatch(filesData)
+	}
 
 	trimmed := strings.TrimSuffix(filename, filepath.Ext(filename))
-	file, err := os.Create(trimmed + ".out.txt")
+	file, err := os.Create(trimmed + ".block.out.txt")
 	check(err)
 
 	defer file.Close()
-	file.Write([]byte(mpt.String()))
+
+	for _, block := range chain.GetChain() {
+		file.Write([]byte(block.String(false)))
+	}
+
 }
