@@ -26,7 +26,8 @@ func main() {
 	println("Please enter how many files you want to input.")
 
 	scanner.Scan()
-	numFiles, _ := strconv.Atoi(scanner.Text())
+	numFiles, err := strconv.Atoi(scanner.Text())
+	check(err)
 
 	var filesData [][]byte
 	var filename string

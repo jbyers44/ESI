@@ -8,10 +8,12 @@ import (
 
 var target int = 1 << 31
 
+// Chain represents a pointer to the genesis block in the chain
 type Chain struct {
 	genesis *Block
 }
 
+// NewChain returns a nil-initiated chain
 func NewChain() *Chain {
 	return &Chain{nil}
 }
