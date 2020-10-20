@@ -50,6 +50,24 @@ func (chain *Chain) InsertBatch(contents map[string][]byte) {
 	}
 }
 
+func (chain *Chain) Validate() bool {
+	previousHash := []byte{}
+	for _, block := range chain.blocks {
+
+		blockResult := block.Validate()
+		println(blockResult)
+		if blockResult == false {
+			return false
+		} else if bytes.Compare(previousHash, block.previousHash) != 0 {
+			println(previousHash)
+			println(block.previousHash)
+			return false
+		}
+		previousHash = block.GetRootHash()
+	}
+	return true
+}
+
 // String returns a string representation of the blockchain
 func (chain *Chain) String(printTrie bool) string {
 	var b bytes.Buffer

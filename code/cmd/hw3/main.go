@@ -28,4 +28,7 @@ func main() {
 
 	defer file.Close()
 	file.Write([]byte(mpt.String()))
+
+	mpt.GetRoot().SetHash([]byte{})
+	println(mpt.Validate())
 }
