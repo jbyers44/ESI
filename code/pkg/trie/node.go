@@ -48,20 +48,20 @@ func nodeStrings(node interface{}, nodeMap map[int]string) {
 	switch n := node.(type) {
 	case *Leaf:
 		var b bytes.Buffer
-		fmt.Fprintf(&b, "[printID]       %d\n", len(nodeMap)+1)
-		fmt.Fprintf(&b, "[value]         '%s'\n", n.value)
-		fmt.Fprintf(&b, "[hash]          %x\n", n.hash)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+1)
+		fmt.Fprintf(&b, "%s\n", n.value)
+		fmt.Fprintf(&b, "%x\n", n.hash)
 		nodeMap[len(nodeMap)+1] = b.String()
 		return
 
 	case *Node:
 		var b bytes.Buffer
-		fmt.Fprintf(&b, "[printId]       %d\n", len(nodeMap)+1)
-		fmt.Fprintf(&b, "[left-child]    %d\n", len(nodeMap)+2)
-		fmt.Fprintf(&b, "[left-label]    '%s'\n", n.leftLabel)
-		fmt.Fprintf(&b, "[hash]          %x\n", n.hash)
-		fmt.Fprintf(&b, "[right-label]   '%s'\n", n.rightLabel)
-		fmt.Fprintf(&b, "[right-child]   %d\n", len(nodeMap)+3)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+1)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+2)
+		fmt.Fprintf(&b, "%s\n", n.leftLabel)
+		fmt.Fprintf(&b, "%x\n", n.hash)
+		fmt.Fprintf(&b, "%s\n", n.rightLabel)
+		fmt.Fprintf(&b, "%d\n", len(nodeMap)+3)
 		nodeMap[len(nodeMap)+1] = b.String()
 
 		nodeStrings(n.left, nodeMap)

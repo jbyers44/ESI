@@ -17,6 +17,7 @@ type Block struct {
 	trie         *trie.MerklePatriciaTrie
 }
 
+// Validate validates an individual block fo hash correctness
 func (block *Block) Validate() bool {
 	h := sha256.New()
 	h.Write(block.trie.GetRoot().GetHash())
@@ -35,12 +36,12 @@ func (block *Block) GetRootHash() []byte {
 func (block *Block) String(printTrie bool) string {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "BEGIN HEADER\n")
-	fmt.Fprintf(&b, "[previousHash]  '%x'\n", block.previousHash)
-	fmt.Fprintf(&b, "[rootHash]      '%x'\n", block.rootHash)
-	fmt.Fprintf(&b, "[timestamp]     '%d'\n", block.timestamp)
-	fmt.Fprintf(&b, "[nonce]         '%x'\n", block.nonce)
+	fmt.Fprintf(&b, "%x\n", block.previousHash)
+	fmt.Fprintf(&b, "%x\n", block.rootHash)
+	fmt.Fprintf(&b, "%d\n", block.timestamp)
+	fmt.Fprintf(&b, "%d\n", block.target)
+	fmt.Fprintf(&b, "%x\n", block.nonce)
 	fmt.Fprintf(&b, "END HEADER\n")
-	fmt.Fprintf(&b, "[mpt]\n")
 	if printTrie {
 		fmt.Fprintf(&b, block.trie.String())
 	}
