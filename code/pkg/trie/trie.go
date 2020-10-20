@@ -140,61 +140,77 @@ func Hash(node interface{}) []byte {
 	return []byte{}
 }
 
-// Private recursive func that does actual insertion logic
+// InTrie checks if value is in trie, returns proof if so
 func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, hashes [][]byte) (bool, [][]byte) {
+
 	//  Greatest common prefix
 	gcp := 0
 
+	//if the length of the prefix has reached the length of value, we have found the value in the trie
 	if len(value) == prefix {
 		return true, hashes
 	}
 
+	//remove carriage byte from end of labels if neccesary
+	if root.leftLabel[len(root.leftLabel)-1] == '\r' {
+		root.leftLabel = root.leftLabel[:len(root.leftLabel)-1]
+	}
+	if root.rightLabel[len(root.rightLabel)-1] == '\r' {
+		root.rightLabel = root.rightLabel[:len(root.rightLabel)-1]
+	}
+
 	// Handle Left pointer
 	gcp = greatestCommonPrefix(value[prefix:], root.leftLabel)
-	println(gcp)
 
-	// if gcp > 0 {
-	switch v := root.left.(type) {
-	case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
-		if bytes.Compare(v.value, value) == 0 {
-			return true, hashes
-		}
+	//if the left edge is a prefix of the target slice, process the left side
+	if gcp == len(root.leftLabel) {
+		switch v := root.left.(type) {
 
-	case *Node:
-		if gcp == len(root.leftLabel) { // If the prefix is a full match, traverse down to the next node
-			println(gcp)
-			println(string(root.leftLabel))
+		//if root.left is a leaf and root.left.value matches the target value, return true and the hashes
+		case *Leaf:
+
+			//remove carriage byte from leaf value if necessary
+			if v.value[len(v.value)-1] == '\r' {
+				v.value = v.value[:len(v.value)-1]
+			}
+
+			if bytes.Compare(v.value, value) == 0 {
+				return true, hashes
+			}
+
+		//if root.left is a node, append the hash of root and root.right to hashes and make recursive call
+		case *Node:
 			switch x := root.right.(type) {
 			case *Node:
 				hashes = append(hashes, root.hash, x.hash)
 			case *Leaf:
 				hashes = append(hashes, root.hash, x.hash)
+				// if !(len(value) == prefix+gcp) {
+				// 	return trie.InTrie(v, value, prefix+gcp, hashes)
+				// }
 			}
-			print("val len: ")
-			print(len(value))
-			println("prefix+gcp: ")
-			print(prefix + gcp)
-			// if !(len(value) == prefix+gcp) {
-			// 	return trie.InTrie(v, value, prefix+gcp, hashes)
-			// }
 			return trie.InTrie(v, value, prefix+gcp, hashes)
 		}
 	}
-	// }
 
 	// Handle Right pointer
 	gcp = greatestCommonPrefix(value[prefix:], root.rightLabel)
+	if gcp == len(root.rightLabel) {
+		switch v := root.right.(type) {
+		//if root.right is a leaf and root.right.value matches the target value, return true and the hashes
+		case *Leaf:
 
-	// if gcp > 0 {
+			//remove carriage byte from leaf value if necessary
+			if v.value[len(v.value)-1] == '\r' {
+				v.value = v.value[:len(v.value)-1]
+			}
 
-	switch v := root.right.(type) {
-	case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
-		if bytes.Compare(v.value, value) == 0 {
-			return true, hashes
-		}
+			if bytes.Compare(v.value, value) == 0 {
+				return true, hashes
+			}
 
-	case *Node:
-		if gcp == len(root.rightLabel) { // If the prefix is a full match, traverse down to the next node
+		//if root.left is a node, append the hash of root and root.left to hashes and make recursive call
+		case *Node:
 			switch x := root.left.(type) {
 			case *Node:
 				hashes = append(hashes, root.hash, x.hash)
@@ -206,9 +222,8 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 			// }
 			return trie.InTrie(v, value, prefix+gcp, hashes)
 		}
-	}
-	// }
 
+	}
 	return false, nil
 }
 

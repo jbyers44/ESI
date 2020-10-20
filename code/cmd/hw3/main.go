@@ -29,6 +29,6 @@ func main() {
 	defer file.Close()
 	file.Write([]byte(mpt.String()))
 
-	x, _ := mpt.InTrie(mpt.GetRoot(), []byte("halfandhalf"), 0, [][]byte{})
+	x, _ := mpt.InTrie(mpt.GetRoot(), []byte("swi"), 0, [][]byte{})
 	println(x)
 }
