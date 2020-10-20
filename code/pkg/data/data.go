@@ -37,3 +37,24 @@ func Generate(filename string, count int) {
 		fmt.Fprintf(writer, "\n")
 	}
 }
+
+// GenerateAlphanum is the same as Generate, but limits characters to the alphanumeric space (for ease of reading)
+func GenerateAlphanum(filename string, count int) {
+	file, err := os.Create(filename)
+	check(err)
+
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	rand.Seed(time.Now().UnixNano())
+
+	alphabet := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890")
+
+	for i := 0; i < count; i++ {
+		for j := 0; j < 100; j++ {
+			fmt.Fprintf(writer, "%c", alphabet[rand.Intn(len(alphabet))])
+		}
+		fmt.Fprintf(writer, "\n")
+	}
+}
