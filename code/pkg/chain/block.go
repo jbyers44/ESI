@@ -16,6 +16,15 @@ type Block struct {
 	trie         *trie.MerklePatriciaTrie
 }
 
+func (block *Block) Validate() bool {
+	return block.trie.Validate()
+}
+
+// GetRootHash gets the root hash for the block's MerklePatriciaTrie
+func (block *Block) GetRootHash() []byte {
+	return block.rootHash
+}
+
 func (block *Block) String(printTrie bool) string {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "BEGIN HEADER\n")

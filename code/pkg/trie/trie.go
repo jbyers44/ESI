@@ -147,6 +147,42 @@ func (trie *MerklePatriciaTrie) InsertBatch(values [][]byte) {
 	}
 }
 
+func (trie *MerklePatriciaTrie) Validate() bool {
+	if trie.root == nil {
+		return true
+	} else {
+		return validate(trie.root)
+	}
+}
+
+func validate(node interface{}) bool {
+
+	switch n := node.(type) {
+	case *Leaf:
+		h := sha256.New()
+		h.Write(n.value)
+		if bytes.Compare(n.hash, h.Sum(nil)) != 0 {
+			return false
+		}
+
+	case *Node:
+		h := sha256.New()
+		b := append(hash(n.left), hash(n.right)...)
+		h.Write(b)
+		if bytes.Compare(n.hash, h.Sum(nil)) != 0 {
+			return false
+		}
+		if n.left != nil {
+			return validate(n.left)
+		}
+		if n.right != nil {
+			return validate(n.right)
+		}
+	}
+
+	return true
+}
+
 // GetRoot gets the root
 func (trie *MerklePatriciaTrie) GetRoot() (root *Node) {
 	return trie.root

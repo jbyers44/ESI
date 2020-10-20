@@ -28,4 +28,6 @@ func main() {
 
 	defer file.Close()
 	file.Write([]byte(mpt.String()))
+
+	println(mpt.Validate())
 }
