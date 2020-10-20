@@ -14,7 +14,7 @@ var target = uint32(1 << 31)
 
 // Chain represents the chain of blocks
 type Chain struct {
-	blocks []Block
+	Blocks []Block
 }
 
 // NewChain returns a new chain with the block array initialized to nil
@@ -33,7 +33,7 @@ func (chain *Chain) Insert(previousHash []byte, trie *trie.MerklePatriciaTrie) [
 	nonce := crypto.GetNonce(target, rootHash)
 
 	newBlock := Block{previousHash, rootHash, timestamp, target, nonce, trie}
-	chain.blocks = append(chain.blocks, newBlock)
+	chain.Blocks = append(chain.Blocks, newBlock)
 	return rootHash
 }
 
@@ -50,12 +50,45 @@ func (chain *Chain) InsertBatch(contents map[string][]byte) {
 	}
 }
 
+//Membership contains a boolean representing whether or not a string is in a chain and a proof of membership if true
+type Membership struct {
+	member      bool
+	proofTrie   [][]byte
+	proofBlocks [][]byte
+}
+
+//inchain returns a Membership indicating whether or not str is in chain
+func (chain *Chain) inchain(str string, strInChain bool) (bool, [][]byte, [][]byte) {
+	result := Membership{
+		member:      strInChain,
+		proofTrie:   nil,
+		proofBlocks: nil,
+	}
+
+	currentBlock := chain.Blocks[len(chain.Blocks)-1]
+	currentTrie := currentBlock.Trie
+
+	var blockHashes [][]byte
+	var trieHashes [][]byte
+	var inTrieResult bool
+
+	val := []byte(str)
+	for _, block := range chain.Blocks {
+		inTrieResult, trieHashes = block.Trie.InTrie(block.Trie.GetRoot(), val, 0, trieHashes)
+		if inTrieResult == true {
+			break
+		}
+	}
+
+	return inTrieResult, trieHashes, blockHashes
+}
+
 // String returns a string representation of the blockchain
 func (chain *Chain) String(printTrie bool) string {
 	var b bytes.Buffer
-	for i := len(chain.blocks) - 1; i >= 0; i-- {
+	for i := len(chain.Blocks) - 1; i >= 0; i-- {
 		fmt.Fprintf(&b, "BEGIN BLOCK\n")
-		fmt.Fprintf(&b, chain.blocks[i].String(printTrie))
+		fmt.Fprintf(&b, chain.Blocks[i].String(printTrie))
 		fmt.Fprintf(&b, "END BLOCK\n")
 		if i > 0 {
 			fmt.Fprintf(&b, "\n")

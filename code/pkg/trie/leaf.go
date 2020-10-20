@@ -7,7 +7,7 @@ import (
 // Leaf is the data structure for terminating leaf nodes that only contain a value and a hash of that value
 type Leaf struct {
 	value []byte
-	hash  []byte
+	Hash  []byte
 }
 
 // NewLeaf is the default contructor for a leaf

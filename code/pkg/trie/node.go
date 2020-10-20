@@ -8,11 +8,11 @@ import (
 
 // Node represents a non-terminal node that points to either other nodes or a leaf
 type Node struct {
-	hash       []byte
-	leftLabel  []byte
-	left       interface{}
-	rightLabel []byte
-	right      interface{}
+	Hash       []byte
+	LeftLabel  []byte
+	Left       interface{}
+	RightLabel []byte
+	Right      interface{}
 }
 
 func (node *Node) String() string {
@@ -43,7 +43,7 @@ func nodeStrings(node interface{}, nodeMap map[int]string) {
 		var b bytes.Buffer
 		fmt.Fprintf(&b, "[printID]       %d\n", len(nodeMap)+1)
 		fmt.Fprintf(&b, "[value]         '%s'\n", n.value)
-		fmt.Fprintf(&b, "[hash]          %x\n", n.hash)
+		fmt.Fprintf(&b, "[Hash]          %x\n", n.Hash)
 		nodeMap[len(nodeMap)+1] = b.String()
 		return
 
@@ -51,20 +51,20 @@ func nodeStrings(node interface{}, nodeMap map[int]string) {
 		var b bytes.Buffer
 		fmt.Fprintf(&b, "[printId]       %d\n", len(nodeMap)+1)
 		fmt.Fprintf(&b, "[left-child]    %d\n", len(nodeMap)+2)
-		fmt.Fprintf(&b, "[left-label]    '%s'\n", n.leftLabel)
-		fmt.Fprintf(&b, "[hash]          %x\n", n.hash)
-		fmt.Fprintf(&b, "[right-label]   '%s'\n", n.rightLabel)
+		fmt.Fprintf(&b, "[left-label]    '%s'\n", n.LeftLabel)
+		fmt.Fprintf(&b, "[Hash]          %x\n", n.Hash)
+		fmt.Fprintf(&b, "[right-label]   '%s'\n", n.RightLabel)
 		fmt.Fprintf(&b, "[right-child]   %d\n", len(nodeMap)+3)
 		nodeMap[len(nodeMap)+1] = b.String()
 
-		nodeStrings(n.left, nodeMap)
-		nodeStrings(n.right, nodeMap)
+		nodeStrings(n.Left, nodeMap)
+		nodeStrings(n.Right, nodeMap)
 		return
 	}
 }
 
 // GetHash gets the root
 func (node *Node) GetHash() []byte {
-	return node.hash
+	return node.Hash
 
 }

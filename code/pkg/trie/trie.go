@@ -5,9 +5,9 @@ import (
 	"crypto/sha256"
 )
 
-// MerklePatriciaTrie is effectively a wrapper for a pointer to the root node
+// MerklePatriciaTrie is effectively a wrapper for a pointer to the Root node
 type MerklePatriciaTrie struct {
-	root *Node
+	Root *Node
 }
 
 // NewMerklePatriciaTrie creates a new trie with a root node with two empty string labels
@@ -17,12 +17,12 @@ func NewMerklePatriciaTrie() *MerklePatriciaTrie {
 
 // Insert a node into the trie
 func (trie *MerklePatriciaTrie) Insert(value []byte) {
-	if trie.root == nil {
+	if trie.Root == nil {
 		leaf := NewLeaf(value)
 		dummy := NewLeaf([]byte(""))
-		trie.root = &Node{[]byte{}, value, leaf, []byte(""), dummy}
+		trie.Root = &Node{[]byte{}, value, leaf, []byte(""), dummy}
 	} else {
-		insert(trie.root, value, 0)
+		insert(trie.Root, value, 0)
 	}
 }
 
@@ -46,98 +46,153 @@ func insert(root *Node, value []byte, prefix int) {
 	//  Greatest common prefix
 	gcp := 0
 
-	// Handle left pointer
-	gcp = greatestCommonPrefix(value[prefix:], root.leftLabel)
+	// Handle Left pointer
+	gcp = greatestCommonPrefix(value[prefix:], root.LeftLabel)
 
 	if gcp > 0 {
-		switch v := root.left.(type) {
-		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on right
+		switch v := root.Left.(type) {
+		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
 			if bytes.Compare(v.value, value) == 0 {
 				return
 			}
-			root.left = insertNode(v, root.leftLabel, value, gcp, prefix)
-			root.leftLabel = root.leftLabel[:gcp]
+			root.Left = insertNode(v, root.LeftLabel, value, gcp, prefix)
+			root.LeftLabel = root.LeftLabel[:gcp]
 			return
 
 		case *Node:
-			if gcp == len(root.leftLabel) { // If the prefix is a full match, traverse down to the next node
+			if gcp == len(root.LeftLabel) { // If the prefix is a full match, traverse down to the next node
 				insert(v, value, prefix+gcp)
 				return
-			} // The prefix isn't a full match, create a new intermediary node with a new leaf value on right, old tree on left
-			root.left = insertNode(v, root.leftLabel, value, gcp, prefix)
-			root.leftLabel = root.leftLabel[:gcp]
+			} // The prefix isn't a full match, create a new intermediary node with a new leaf value on Right, old tree on Left
+			root.Left = insertNode(v, root.LeftLabel, value, gcp, prefix)
+			root.LeftLabel = root.LeftLabel[:gcp]
 			return
 		}
 	}
 
-	// Handle right pointer
-	gcp = greatestCommonPrefix(value[prefix:], root.rightLabel)
+	// Handle Right pointer
+	gcp = greatestCommonPrefix(value[prefix:], root.RightLabel)
 
 	if gcp > 0 {
 
-		switch v := root.right.(type) {
-		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on right
+		switch v := root.Right.(type) {
+		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
 			if bytes.Compare(v.value, value) == 0 {
 				return
 			}
-			root.right = insertNode(v, root.rightLabel, value, gcp, prefix)
-			root.rightLabel = root.rightLabel[:gcp]
+			root.Right = insertNode(v, root.RightLabel, value, gcp, prefix)
+			root.RightLabel = root.RightLabel[:gcp]
 			return
 
 		case *Node:
-			if gcp == len(root.rightLabel) { // If the prefix is a full match, traverse down to the next node
+			if gcp == len(root.RightLabel) { // If the prefix is a full match, traverse down to the next node
 				insert(v, value, prefix+gcp)
 				return
-			} // The prefix isn't a full match, create a new intermediary node with a new leaf value on right, old tree on left
-			root.right = insertNode(v, root.rightLabel, value, gcp, prefix)
-			root.rightLabel = root.rightLabel[:gcp]
+			} // The prefix isn't a full match, create a new intermediary node with a new leaf value on Right, old tree on Left
+			root.Right = insertNode(v, root.RightLabel, value, gcp, prefix)
+			root.RightLabel = root.RightLabel[:gcp]
 			return
 		}
 	} else { // Final case, shares no prefix with either node
 
-		switch v := root.right.(type) {
-		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on right
+		switch v := root.Right.(type) {
+		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
 			if bytes.Compare(v.value, []byte("")) == 0 {
-				root.right = NewLeaf(value)
-				root.rightLabel = value
+				root.Right = NewLeaf(value)
+				root.RightLabel = value
 				return
 			}
 			goto ExtensionNode
 
 		case *Node:
-			if bytes.Compare(root.rightLabel, []byte("")) == 0 {
+			if bytes.Compare(root.RightLabel, []byte("")) == 0 {
 				insert(v, value, prefix)
 				return
 			}
 			goto ExtensionNode
 		}
 	ExtensionNode:
-		root.right = insertNode(root.right, root.rightLabel, value, gcp, prefix)
-		root.rightLabel = []byte("")
+		root.Right = insertNode(root.Right, root.RightLabel, value, gcp, prefix)
+		root.RightLabel = []byte("")
 		return
 	}
 }
 
-// GenerateHashes generates the merkle hashes for the tree
+// GenerateHashes generates the merkle Hashes for the tree
 func (trie *MerklePatriciaTrie) GenerateHashes() {
-	trie.root.hash = hash(trie.root)
+	trie.Root.Hash = Hash(trie.Root)
 }
 
-// ComputeHash computes the merkle tree hash for the tree
-func hash(node interface{}) []byte {
+// ComputeHash computes the merkle tree Hash for the tree
+func Hash(node interface{}) []byte {
 	switch n := node.(type) {
 	case *Leaf:
-		return n.hash
+		return n.Hash
 
 	case *Node:
 		h := sha256.New()
-		b := append(hash(n.left), hash(n.right)...)
+		b := append(Hash(n.Left), Hash(n.Right)...)
 		h.Write(b)
-		n.hash = h.Sum(nil)
-		return n.hash
+		n.Hash = h.Sum(nil)
+		return n.Hash
 	}
 	println("Hash computation error.\n")
 	return []byte{}
+}
+
+// Private recursive func that does actual insertion logic
+func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, hashes [][]byte) (bool, [][]byte) {
+	//  Greatest common prefix
+	gcp := 0
+
+	// Handle Left pointer
+	gcp = greatestCommonPrefix(value[prefix:], root.LeftLabel)
+
+	if gcp > 0 {
+		switch v := root.Left.(type) {
+		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
+			if bytes.Compare(v.value, value) == 0 {
+				return true, hashes
+			}
+
+		case *Node:
+			if gcp == len(root.LeftLabel) { // If the prefix is a full match, traverse down to the next node
+				switch x := root.Right.(type) {
+				case *Node:
+					hashes = append(hashes, root.Hash, x.Hash)
+					return trie.InTrie(v, value, prefix+gcp, hashes)
+				case *Leaf:
+					hashes = append(hashes, root.Hash, x.Hash)
+				}
+			}
+		}
+	}
+
+	// Handle Right pointer
+	gcp = greatestCommonPrefix(value[prefix:], root.RightLabel)
+
+	if gcp > 0 {
+
+		switch v := root.Right.(type) {
+		case *Leaf: // Push leaf down and insert intermediary node with new leaf value on Right
+			if bytes.Compare(v.value, value) == 0 {
+				return true, hashes
+			}
+
+		case *Node:
+			if gcp == len(root.RightLabel) { // If the prefix is a full match, traverse down to the next node
+				switch x := root.Left.(type) {
+				case *Node:
+					hashes = append(hashes, root.Hash, x.Hash)
+					return trie.InTrie(v, value, prefix+gcp, hashes)
+				case *Leaf:
+					hashes = append(hashes, root.Hash, x.Hash)
+				}
+			}
+		}
+	}
+
+	return false, nil
 }
 
 // InsertBatch makes a new trie
@@ -148,11 +203,11 @@ func (trie *MerklePatriciaTrie) InsertBatch(values [][]byte) {
 }
 
 // GetRoot gets the root
-func (trie *MerklePatriciaTrie) GetRoot() (root *Node) {
-	return trie.root
+func (trie *MerklePatriciaTrie) GetRoot() (Root *Node) {
+	return trie.Root
 
 }
 
 func (trie *MerklePatriciaTrie) String() string {
-	return trie.root.String()
+	return trie.Root.String()
 }
