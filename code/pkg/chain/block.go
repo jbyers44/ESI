@@ -3,6 +3,7 @@ package chain
 import (
 	"ESI/pkg/trie"
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 )
 
@@ -17,6 +18,12 @@ type Block struct {
 }
 
 func (block *Block) Validate() bool {
+	h := sha256.New()
+	h.Write(block.trie.GetRoot().GetHash())
+	expectedHash := h.Sum(nil)
+	if bytes.Compare(block.rootHash, expectedHash) != 0 {
+		return false
+	}
 	return block.trie.Validate()
 }
 
