@@ -15,6 +15,13 @@ type Node struct {
 	Right      interface{}
 }
 
+// This was created purely for testing whether or not a corrupted block would lead to an invalid result
+// when validating the chain
+// Should delete when all completed
+func (node *Node) SetHash(hash []byte) {
+	node.hash = hash
+}
+
 func (node *Node) String() string {
 	m := make(map[int]string)
 	nodeStrings(node, m)
