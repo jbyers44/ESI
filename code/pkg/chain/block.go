@@ -14,7 +14,7 @@ type Block struct {
 	timestamp    int64
 	target       uint32
 	nonce        []byte
-	Trie         *trie.MerklePatriciaTrie
+	trie         *trie.MerklePatriciaTrie
 }
 
 func (block *Block) Validate() bool {
@@ -42,7 +42,7 @@ func (block *Block) String(printTrie bool) string {
 	fmt.Fprintf(&b, "END HEADER\n")
 	fmt.Fprintf(&b, "[mpt]\n")
 	if printTrie {
-		fmt.Fprintf(&b, block.Trie.String())
+		fmt.Fprintf(&b, block.trie.String())
 	}
 	return b.String()
 }
