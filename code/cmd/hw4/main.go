@@ -48,4 +48,6 @@ func main() {
 	defer file.Close()
 
 	file.Write([]byte(chain.String(true)))
+
+	println(chain.Validate())
 }
