@@ -37,6 +37,11 @@ func (chain *Chain) Insert(previousHash []byte, trie *trie.MerklePatriciaTrie) [
 	return rootHash
 }
 
+// InsertBlock inserts a complete block to the chain (helper method for deserialization)
+func (chain *Chain) InsertBlock(block Block) {
+	chain.blocks = append(chain.blocks, block)
+}
+
 // InsertBatch takes the not split content of multiple strings and inserts all the blocks, keeping track of the previous hash
 // and constructing the tree for each block
 func (chain *Chain) InsertBatch(contents map[string][]byte) {
@@ -71,6 +76,7 @@ func (chain *Chain) inchain(str string, strInChain bool) (bool, [][]byte, [][]by
 	return inTrieResult, trieHashes, blockHashes
 }
 
+// Validate validates a blockchain for hash correctness
 func (chain *Chain) Validate() bool {
 	previousHash := []byte{}
 	for _, block := range chain.blocks {
