@@ -9,14 +9,11 @@ import (
 
 // GetNonce generates a valid nonce given an int representing the difficulty, and a byte hash
 func GetNonce(target uint32, hash []byte) []byte {
-	h := sha256.New()
-
 	rand.Seed(time.Now().UnixNano())
 
 	nonce := make([]byte, 32)
-	i := 0
 	for {
-		i++
+		h := sha256.New()
 		rand.Read(nonce)
 
 		b := append(hash, nonce...)
@@ -29,4 +26,20 @@ func GetNonce(target uint32, hash []byte) []byte {
 			return nonce
 		}
 	}
+}
+
+// CheckNonce checks to see if a given nonce and hash meet the difficulty target
+func CheckNonce(target uint32, hash []byte, nonce []byte) bool {
+	h := sha256.New()
+
+	b := append(hash, nonce...)
+	h.Write(b)
+	value := h.Sum(nil)
+
+	intHash := binary.BigEndian.Uint32(value)
+
+	if intHash > target {
+		return true
+	}
+	return false
 }

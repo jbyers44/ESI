@@ -5,8 +5,8 @@ import (
 	"ESI/pkg/helpers"
 	"ESI/pkg/trie"
 	"bytes"
-	"crypto/sha256"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -24,9 +24,7 @@ func NewChain() *Chain {
 
 // Insert a node into the trie
 func (chain *Chain) Insert(previousHash []byte, trie *trie.MerklePatriciaTrie) []byte {
-	h := sha256.New()
-	h.Write(trie.GetRoot().GetHash())
-	rootHash := h.Sum(nil)
+	rootHash := trie.GetRoot().GetHash()
 
 	timestamp := time.Now().UTC().Unix()
 
@@ -56,7 +54,7 @@ func (chain *Chain) InsertBatch(contents map[string][]byte) {
 }
 
 //InChain returns a boolean indicating whether or not str is in chain, and proofs of membership of its trie and block
-func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]byte) {
+func (chain *Chain) InChain(str string) (bool, [][]byte, [][]byte) {
 	var blockHashes [][]byte
 	var trieHashes [][]byte
 	var inTrieResult bool
@@ -64,28 +62,21 @@ func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]by
 	val := []byte(str)
 	var i int = 0
 	for _, block := range chain.blocks {
-		inTrieResult, trieHashes = block.trie.InTrie(block.trie.GetRoot(), val, 0, trieHashes)
-		if inTrieResult == true {
-			strInChain = true
+		inTrieResult, trieHashes = block.trie.InTrie(val)
+		if inTrieResult {
 			break
 		}
 		i++
 	}
 
-	for index := i; index < len(chain.blocks); index++ {
-		blockHashes = append(blockHashes, chain.blocks[i].rootHash)
+	for _, block := range chain.blocks[i:] {
+		blockHashes = append(blockHashes, block.rootHash)
 	}
 
-	if len(blockHashes) == 0 {
-		strInChain = false
-	} else { //reverse trieHashes
-		for j := 0; j < len(trieHashes)/2; j++ {
-			k := len(trieHashes) - j - 1
-			trieHashes[j], trieHashes[k] = trieHashes[k], trieHashes[j]
-		}
+	if inTrieResult {
+		return inTrieResult, trieHashes, blockHashes
 	}
-
-	return inTrieResult, trieHashes, blockHashes
+	return inTrieResult, nil, nil
 }
 
 // Validate validates a blockchain for hash correctness
@@ -94,17 +85,21 @@ func (chain *Chain) Validate() bool {
 	for _, block := range chain.blocks {
 
 		blockResult := block.Validate()
-		println(blockResult)
 		if blockResult == false {
 			return false
 		} else if bytes.Compare(previousHash, block.previousHash) != 0 {
-			println(previousHash)
-			println(block.previousHash)
 			return false
 		}
 		previousHash = block.GetRootHash()
 	}
 	return true
+}
+
+// Corrupt chooses a random block in the chain and corrupts it using block.Corrupt
+func (chain *Chain) Corrupt() {
+	rand.Seed(time.Now().UnixNano())
+	block := &chain.blocks[rand.Intn(len(chain.blocks))]
+	block.trie.Corrupt()
 }
 
 // String returns a string representation of the blockchain

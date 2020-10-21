@@ -55,7 +55,6 @@ func GenerateAlphanum(filename string, count int) {
 	for i := 0; i < count; i++ {
 		for j := 0; j < 100; j++ {
 			char := alphabet[rand.Intn(len(alphabet))]
-			fmt.Fprintf(os.Stdout, "%d %d %c\n", i, j, char)
 			fmt.Fprintf(writer, "%c", char)
 		}
 		fmt.Fprintf(writer, "\n")

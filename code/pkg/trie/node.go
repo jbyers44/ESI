@@ -18,6 +18,8 @@ type Node struct {
 // This was created purely for testing whether or not a corrupted block would lead to an invalid result
 // when validating the chain
 // Should delete when all completed
+
+// SetHash sets the hash of a node to a specific value
 func (node *Node) SetHash(hash []byte) {
 	node.hash = hash
 }
