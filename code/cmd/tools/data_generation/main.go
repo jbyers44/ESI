@@ -23,5 +23,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data.Generate(filename, count)
+
+	println("Choose between 1. Alphanumeric and 2. ASCII space (includes non-newline whitespace characters and symbols) by entering the number:")
+	scanner.Scan()
+	choice := scanner.Text()
+
+	if choice == "1" {
+		data.GenerateAlphanum(filename, count)
+	} else if choice == "2" {
+		data.Generate(filename, count)
+	} else {
+		println("Not a valid choice.")
+	}
 }
