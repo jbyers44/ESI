@@ -1,0 +1,3 @@
+cd code/cmd/hw5
+go build -o hw5.exe
+mv hw5.exe ../../../
