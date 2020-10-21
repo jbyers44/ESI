@@ -3,7 +3,9 @@ package trie
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -284,7 +286,9 @@ func corrupt(node interface{}) {
 	case *Leaf:
 		h := sha256.New()
 		h.Write(n.hash)
+		fmt.Fprintf(os.Stdout, "old %x\n", n.hash)
 		n.hash = h.Sum(nil)
+		fmt.Fprintf(os.Stdout, "new %x\n", n.hash)
 
 	case *Node:
 		flip := rand.Intn(3)
@@ -296,7 +300,9 @@ func corrupt(node interface{}) {
 		case 2:
 			h := sha256.New()
 			h.Write(n.hash)
+			fmt.Fprintf(os.Stdout, "old %x", n.hash)
 			n.hash = h.Sum(nil)
+			fmt.Fprintf(os.Stdout, "new %x", n.hash)
 		}
 	}
 }

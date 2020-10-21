@@ -91,12 +91,9 @@ func (chain *Chain) Validate() bool {
 	for _, block := range chain.blocks {
 
 		blockResult := block.Validate()
-		println(blockResult)
 		if blockResult == false {
 			return false
 		} else if bytes.Compare(previousHash, block.previousHash) != 0 {
-			println(previousHash)
-			println(block.previousHash)
 			return false
 		}
 		previousHash = block.GetRootHash()

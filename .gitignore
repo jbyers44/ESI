@@ -1,8 +1,9 @@
 allcode.go
 *.sh
 *.exe
-code/cmd/hw3/*txt
+*.out
 *.txt
 /allcode
 /run
 /recompile
+code/cmd/hw5/random.block.out

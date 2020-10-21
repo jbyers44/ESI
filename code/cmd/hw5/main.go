@@ -90,9 +90,9 @@ func genchain() {
 	check(err)
 
 	contents := make(map[string][]byte)
-	currentChainName = "random_chain"
+	currentChainName = "random"
 	for i := 0; i < numBlocks; i++ {
-		filename := "random_chain" + strconv.Itoa(i)
+		filename := "random" + strconv.Itoa(i)
 		data.GenerateAlphanum(filename+".tmp", numValues)
 		content, err := ioutil.ReadFile(filename + ".tmp")
 		check(err)
@@ -100,6 +100,8 @@ func genchain() {
 		err = os.Remove(filename + ".tmp")
 		check(err)
 	}
+
+	currentChain.InsertBatch(contents)
 
 	fmt.Fprintf(os.Stdout, "\nChain successfully generated, bringing you to the chain management menu.\n")
 	chainmenu()
@@ -152,23 +154,23 @@ func outputchain() {
 	switch input {
 	case "1":
 		file.Write([]byte(currentChain.String(true)))
-		fmt.Fprintf(os.Stdout, "Successfully output chain.\n")
+		fmt.Fprintf(os.Stdout, "\nSuccessfully output chain.\n")
 		chainmenu()
 	case "2":
 		file.Write([]byte(currentChain.String(false)))
-		fmt.Fprintf(os.Stdout, "Successfully output chain.\n")
+		fmt.Fprintf(os.Stdout, "\nSuccessfully output chain.\n")
 		chainmenu()
 	case "3":
 		chainmenu()
 	default:
-		fmt.Fprintf(os.Stdout, "That's not a valid option.\n")
+		fmt.Fprintf(os.Stdout, "\nThat's not a valid option.\n")
 		chainmenu()
 	}
 }
 
 func corruptchain() {
 	currentChain.Corrupt()
-	fmt.Fprintf(os.Stdout, "A random node in a random block has been corrupted.\n")
+	fmt.Fprintf(os.Stdout, "\nA random node in a random block has been corrupted.\n")
 	chainmenu()
 }
 
@@ -204,12 +206,13 @@ func searchchain() {
 }
 
 func validatechain() {
-	fmt.Fprintf(os.Stdout, "Validating chain...\n")
+	fmt.Fprintf(os.Stdout, "\nValidating chain...\n")
 	result := currentChain.Validate()
 
 	if result {
-		fmt.Fprintf(os.Stdout, "The chain is currently valid.")
+		fmt.Fprintf(os.Stdout, "The chain is currently valid.\n")
 	} else {
-		fmt.Fprintf(os.Stdout, "The chain is currently invalid, there is a corrupt block.")
+		fmt.Fprintf(os.Stdout, "The chain is currently invalid, there is a corrupt block.\n")
 	}
+	chainmenu()
 }
