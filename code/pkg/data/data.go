@@ -62,3 +62,4 @@ func GenerateAlphanum(filename string, count int) {
 		writer.Flush()
 	}
 }
+

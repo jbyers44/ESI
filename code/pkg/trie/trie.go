@@ -3,6 +3,8 @@ package trie
 import (
 	"bytes"
 	"crypto/sha256"
+	"math/rand"
+	"time"
 )
 
 // MerklePatriciaTrie is effectively a wrapper for a pointer to the Root node
@@ -123,7 +125,7 @@ func (trie *MerklePatriciaTrie) GenerateHashes() {
 	trie.root.hash = Hash(trie.root)
 }
 
-// ComputeHash computes the merkle tree Hash for the tree
+// Hash computes the merkle tree Hash for the tree
 func Hash(node interface{}) []byte {
 	switch n := node.(type) {
 	case *Leaf:
@@ -231,12 +233,12 @@ func (trie *MerklePatriciaTrie) InsertBatch(values [][]byte) {
 	}
 }
 
+// Validate validates the trie for hash completeness
 func (trie *MerklePatriciaTrie) Validate() bool {
 	if trie.root == nil {
 		return true
-	} else {
-		return validate(trie.root)
 	}
+	return validate(trie.root)
 }
 
 func validate(node interface{}) bool {
@@ -265,6 +267,38 @@ func validate(node interface{}) bool {
 	}
 
 	return true
+}
+
+// Corrupt randomly chooses a block in the trie and corrupts its hash (sets it to the hash of the existing hash)
+func (trie *MerklePatriciaTrie) Corrupt() {
+	if trie.root == nil {
+		return
+	}
+	corrupt(trie.root)
+}
+
+func corrupt(node interface{}) {
+	rand.Seed(time.Now().UnixNano())
+
+	switch n := node.(type) {
+	case *Leaf:
+		h := sha256.New()
+		h.Write(n.hash)
+		n.hash = h.Sum(nil)
+
+	case *Node:
+		flip := rand.Intn(3)
+		switch flip {
+		case 0:
+			corrupt(n.left)
+		case 1:
+			corrupt(n.right)
+		case 2:
+			h := sha256.New()
+			h.Write(n.hash)
+			n.hash = h.Sum(nil)
+		}
+	}
 }
 
 // GetRoot gets the root

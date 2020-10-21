@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -56,7 +57,7 @@ func (chain *Chain) InsertBatch(contents map[string][]byte) {
 }
 
 //InChain returns a boolean indicating whether or not str is in chain, and proofs of membership of its trie and block
-func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]byte) {
+func (chain *Chain) InChain(str string) (bool, [][]byte, [][]byte) {
 	var blockHashes [][]byte
 	var trieHashes [][]byte
 	var inTrieResult bool
@@ -65,10 +66,6 @@ func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]by
 	var i int = 0
 	for _, block := range chain.blocks {
 		inTrieResult, trieHashes = block.trie.InTrie(block.trie.GetRoot(), val, 0, trieHashes)
-		if inTrieResult == true {
-			strInChain = true
-			break
-		}
 		i++
 	}
 
@@ -77,7 +74,7 @@ func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]by
 	}
 
 	if len(blockHashes) == 0 {
-		strInChain = false
+		inTrieResult = false
 	} else { //reverse trieHashes
 		for j := 0; j < len(trieHashes)/2; j++ {
 			k := len(trieHashes) - j - 1
@@ -105,6 +102,13 @@ func (chain *Chain) Validate() bool {
 		previousHash = block.GetRootHash()
 	}
 	return true
+}
+
+// Corrupt chooses a random block in the chain and corrupts it using block.Corrupt
+func (chain *Chain) Corrupt() {
+	rand.Seed(time.Now().UnixNano())
+	block := &chain.blocks[rand.Intn(len(chain.blocks))]
+	block.trie.Corrupt()
 }
 
 // String returns a string representation of the blockchain
