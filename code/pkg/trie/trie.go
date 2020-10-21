@@ -143,85 +143,89 @@ func Hash(node interface{}) []byte {
 }
 
 // InTrie checks if value is in trie, returns proof if so
-func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, hashes [][]byte) (bool, [][]byte) {
+func (trie *MerklePatriciaTrie) InTrie(value []byte) (bool, [][]byte) {
+	if trie.root == nil {
+		return false, nil
+	}
+	var blank [][]byte
+	result, trieHashes := inTrie(trie.root, value, 0, blank)
 
+	// Flip the order
+	for j := 0; j < len(trieHashes)/2; j++ {
+		k := len(trieHashes) - j - 1
+		trieHashes[j], trieHashes[k] = trieHashes[k], trieHashes[j]
+	}
+
+	// Append the root
+	trieHashes = append(trieHashes, trie.root.hash)
+	return result, trieHashes
+}
+
+// InTrie checks if value is in trie, returns proof if so
+func inTrie(root *Node, value []byte, prefix int, hashes [][]byte) (bool, [][]byte) {
 	//  Greatest common prefix
 	gcp := 0
 
-	//if the length of the prefix has reached the length of value, we have found the value in the trie
-	if len(value) == prefix {
-		return true, hashes
-	}
-
-	//remove carriage byte from end of labels if neccesary
-	if len(root.leftLabel) > 0 && root.leftLabel[len(root.leftLabel)-1] == '\r' {
-		root.leftLabel = root.leftLabel[:len(root.leftLabel)-1]
-	}
-	if len(root.rightLabel) > 0 && root.rightLabel[len(root.rightLabel)-1] == '\r' {
-		root.rightLabel = root.rightLabel[:len(root.rightLabel)-1]
-	}
-
-	// Handle Left pointer
+	// Handle left label
 	gcp = greatestCommonPrefix(value[prefix:], root.leftLabel)
 
-	//if the left edge is a prefix of the target slice, process the left side
 	if gcp == len(root.leftLabel) {
 		switch v := root.left.(type) {
-
-		//if root.left is a leaf and root.left.value matches the target value, return true and the hashes
+		// If root.left is our value, append its neighboring hash, then its hash, and return
 		case *Leaf:
-
-			//remove carriage byte from leaf value if necessary
-			if v.value[len(v.value)-1] == '\r' {
-				v.value = v.value[:len(v.value)-1]
-			}
-
 			if bytes.Compare(v.value, value) == 0 {
-				hashes = append(hashes, v.hash)
+				switch n := root.right.(type) {
+				case *Node:
+					hashes = append(hashes, n.hash, v.hash)
+				case *Leaf:
+					hashes = append(hashes, n.hash, v.hash)
+				}
 				return true, hashes
+			} else if bytes.Compare(root.leftLabel, []byte("")) == 0 {
+				break
 			}
+			return false, nil
 
-		//if root.left is a node, append the hash of root and root.right to hashes and make recursive call
+		// If root.left is a node, append its neighboring hash, its hash, and traverse to it
 		case *Node:
-			switch x := root.right.(type) {
+			switch n := root.right.(type) {
 			case *Node:
-				hashes = append(hashes, root.hash, x.hash)
+				hashes = append(hashes, n.hash, v.hash)
 			case *Leaf:
-				hashes = append(hashes, root.hash, x.hash)
+				hashes = append(hashes, n.hash, v.hash)
 			}
-			return trie.InTrie(v, value, prefix+gcp, hashes)
+			return inTrie(v, value, prefix+gcp, hashes)
 		}
 	}
 
-	// Handle Right pointer
+	// Handle right label
 	gcp = greatestCommonPrefix(value[prefix:], root.rightLabel)
+
 	if gcp == len(root.rightLabel) {
 		switch v := root.right.(type) {
-		//if root.right is a leaf and root.right.value matches the target value, return true and the hashes
+		// If root.right is our value, append its neighboring hash, then its hash, and return
 		case *Leaf:
-
-			//remove carriage byte from leaf value if necessary
-			if v.value[len(v.value)-1] == '\r' {
-				v.value = v.value[:len(v.value)-1]
-			}
-
 			if bytes.Compare(v.value, value) == 0 {
-				hashes = append(hashes, v.hash)
+				switch n := root.left.(type) {
+				case *Node:
+					hashes = append(hashes, n.hash, v.hash)
+				case *Leaf:
+					hashes = append(hashes, n.hash, v.hash)
+				}
 				return true, hashes
 			}
+			return false, nil
 
-		//if root.left is a node, append the hash of root and root.left to hashes and make recursive call
+		// If root.right is a node, append its neighboring hash, its hash, and traverse to it
 		case *Node:
-			switch x := root.left.(type) {
+			switch n := root.left.(type) {
 			case *Node:
-				hashes = append(hashes, root.hash, x.hash)
+				hashes = append(hashes, n.hash, v.hash)
 			case *Leaf:
-				hashes = append(hashes, root.hash, x.hash)
+				hashes = append(hashes, n.hash, v.hash)
 			}
-
-			return trie.InTrie(v, value, prefix+gcp, hashes)
+			return inTrie(v, value, prefix+gcp, hashes)
 		}
-
 	}
 	return false, nil
 }

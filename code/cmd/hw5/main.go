@@ -175,8 +175,6 @@ func corruptchain() {
 }
 
 func searchchain() {
-	currentChain = chain.NewChain()
-
 	fmt.Fprintf(os.Stdout, "\nEnter the value you want to search:\n")
 	scanner.Scan()
 	input := scanner.Text()
@@ -185,15 +183,15 @@ func searchchain() {
 
 	if result {
 		fmt.Fprintf(os.Stdout, "The value was successfully found in the chain.\n")
-		fmt.Fprintf(os.Stdout, "Merkle proof from value to merkle root: [\n")
-		for _, i := range blockHashes {
-			fmt.Fprintf(os.Stdout, "%s\n", string(i))
-		}
-		fmt.Fprintf(os.Stdout, "]\nBlock hashes from value's block to most recent: [\n")
+		fmt.Fprintf(os.Stdout, "Merkle proof from value to merkle root: \n[\n")
 		for _, i := range trieHashes {
-			fmt.Fprintf(os.Stdout, "%s\n", string(i))
+			fmt.Fprintf(os.Stdout, "%x,\n", i)
 		}
-		fmt.Fprintf(os.Stdout, "]\n")
+		fmt.Fprintf(os.Stdout, "]\n\nBlock hashes from value's block to most recent: \n[\n")
+		for _, i := range blockHashes {
+			fmt.Fprintf(os.Stdout, "%x,\n", i)
+		}
+		fmt.Fprintf(os.Stdout, "]\n\n")
 		fmt.Fprintf(os.Stdout, "Press 'Enter' to return to the chain management menu...")
 		fmt.Scanln()
 		chainmenu()

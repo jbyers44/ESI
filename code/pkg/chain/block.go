@@ -1,9 +1,9 @@
 package chain
 
 import (
+	"ESI/pkg/crypto"
 	"ESI/pkg/trie"
 	"bytes"
-	"crypto/sha256"
 	"fmt"
 )
 
@@ -19,13 +19,10 @@ type Block struct {
 
 // Validate validates an individual block fo hash correctness
 func (block *Block) Validate() bool {
-	h := sha256.New()
-	h.Write(block.trie.GetRoot().GetHash())
-	expectedHash := h.Sum(nil)
-	if bytes.Compare(block.rootHash, expectedHash) != 0 {
-		return false
+	if crypto.CheckNonce(block.target, block.rootHash, block.nonce) {
+		return block.trie.Validate()
 	}
-	return block.trie.Validate()
+	return false
 }
 
 // GetRootHash gets the root hash for the block's MerklePatriciaTrie

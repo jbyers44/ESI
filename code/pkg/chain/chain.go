@@ -5,7 +5,6 @@ import (
 	"ESI/pkg/helpers"
 	"ESI/pkg/trie"
 	"bytes"
-	"crypto/sha256"
 	"fmt"
 	"math/rand"
 	"time"
@@ -25,9 +24,7 @@ func NewChain() *Chain {
 
 // Insert a node into the trie
 func (chain *Chain) Insert(previousHash []byte, trie *trie.MerklePatriciaTrie) []byte {
-	h := sha256.New()
-	h.Write(trie.GetRoot().GetHash())
-	rootHash := h.Sum(nil)
+	rootHash := trie.GetRoot().GetHash()
 
 	timestamp := time.Now().UTC().Unix()
 
@@ -65,24 +62,21 @@ func (chain *Chain) InChain(str string) (bool, [][]byte, [][]byte) {
 	val := []byte(str)
 	var i int = 0
 	for _, block := range chain.blocks {
-		inTrieResult, trieHashes = block.trie.InTrie(block.trie.GetRoot(), val, 0, trieHashes)
+		inTrieResult, trieHashes = block.trie.InTrie(val)
+		if inTrieResult {
+			break
+		}
 		i++
 	}
 
-	for index := i; index < len(chain.blocks); index++ {
-		blockHashes = append(blockHashes, chain.blocks[i].rootHash)
+	for _, block := range chain.blocks[i:] {
+		blockHashes = append(blockHashes, block.rootHash)
 	}
 
-	if len(blockHashes) == 0 {
-		inTrieResult = false
-	} else { //reverse trieHashes
-		for j := 0; j < len(trieHashes)/2; j++ {
-			k := len(trieHashes) - j - 1
-			trieHashes[j], trieHashes[k] = trieHashes[k], trieHashes[j]
-		}
+	if inTrieResult {
+		return inTrieResult, trieHashes, blockHashes
 	}
-
-	return inTrieResult, trieHashes, blockHashes
+	return inTrieResult, nil, nil
 }
 
 // Validate validates a blockchain for hash correctness
