@@ -55,21 +55,33 @@ func (chain *Chain) InsertBatch(contents map[string][]byte) {
 	}
 }
 
-//inchain returns a Membership indicating whether or not str is in chain
-func (chain *Chain) inchain(str string, strInChain bool) (bool, [][]byte, [][]byte) {
-
-	//currentBlock := chain.blocks[len(chain.blocks)-1]
-	//currentTrie := currentBlock.trie
-
+//InChain returns a boolean indicating whether or not str is in chain, and proofs of membership of its trie and block
+func (chain *Chain) InChain(str string, strInChain bool) (bool, [][]byte, [][]byte) {
 	var blockHashes [][]byte
 	var trieHashes [][]byte
 	var inTrieResult bool
 
 	val := []byte(str)
+	var i int = 0
 	for _, block := range chain.blocks {
 		inTrieResult, trieHashes = block.trie.InTrie(block.trie.GetRoot(), val, 0, trieHashes)
 		if inTrieResult == true {
+			strInChain = true
 			break
+		}
+		i++
+	}
+
+	for index := i; index < len(chain.blocks); index++ {
+		blockHashes = append(blockHashes, chain.blocks[i].rootHash)
+	}
+
+	if len(blockHashes) == 0 {
+		strInChain = false
+	} else { //reverse trieHashes
+		for j := 0; j < len(trieHashes)/2; j++ {
+			k := len(trieHashes) - j - 1
+			trieHashes[j], trieHashes[k] = trieHashes[k], trieHashes[j]
 		}
 	}
 

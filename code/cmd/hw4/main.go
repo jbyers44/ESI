@@ -48,4 +48,10 @@ func main() {
 	defer file.Close()
 
 	file.Write([]byte(chain.String(true)))
+
+	a, b, c := chain.InChain("breast", true)
+	println(a)
+	fmt.Printf("%v", b)
+	println("")
+	fmt.Printf("%v", c)
 }

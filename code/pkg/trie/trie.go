@@ -152,10 +152,10 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 	}
 
 	//remove carriage byte from end of labels if neccesary
-	if root.leftLabel[len(root.leftLabel)-1] == '\r' {
+	if len(root.leftLabel) > 0 && root.leftLabel[len(root.leftLabel)-1] == '\r' {
 		root.leftLabel = root.leftLabel[:len(root.leftLabel)-1]
 	}
-	if root.rightLabel[len(root.rightLabel)-1] == '\r' {
+	if len(root.rightLabel) > 0 && root.rightLabel[len(root.rightLabel)-1] == '\r' {
 		root.rightLabel = root.rightLabel[:len(root.rightLabel)-1]
 	}
 
@@ -175,6 +175,7 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 			}
 
 			if bytes.Compare(v.value, value) == 0 {
+				hashes = append(hashes, v.hash)
 				return true, hashes
 			}
 
@@ -185,9 +186,6 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 				hashes = append(hashes, root.hash, x.hash)
 			case *Leaf:
 				hashes = append(hashes, root.hash, x.hash)
-				// if !(len(value) == prefix+gcp) {
-				// 	return trie.InTrie(v, value, prefix+gcp, hashes)
-				// }
 			}
 			return trie.InTrie(v, value, prefix+gcp, hashes)
 		}
@@ -206,6 +204,7 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 			}
 
 			if bytes.Compare(v.value, value) == 0 {
+				hashes = append(hashes, v.hash)
 				return true, hashes
 			}
 
@@ -217,9 +216,7 @@ func (trie *MerklePatriciaTrie) InTrie(root *Node, value []byte, prefix int, has
 			case *Leaf:
 				hashes = append(hashes, root.hash, x.hash)
 			}
-			// if !(len(value) == prefix+gcp) {
-			// 	return trie.InTrie(v, value, prefix+gcp, hashes)
-			// }
+
 			return trie.InTrie(v, value, prefix+gcp, hashes)
 		}
 
